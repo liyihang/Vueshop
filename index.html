@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>商城</title>
+    <link rel="stylesheet" type="text/css" href="css/loaders.min.css"/>
+    <link rel="stylesheet" type="text/css" href="css/loading.css"/>
+    <link rel="stylesheet" type="text/css" href="css/base.css"/>
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="css/swiper.min.css"/>
+    <script src="js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="lib/vue.js"></script>
+	<script src="lib/axios.js"></script>
+    <script type="text/javascript">
+    	$(window).load(function(){
+    		$(".loading").addClass("loader-chanage")
+    		$(".loading").fadeOut(300)
+    	})
+    </script>
+</head>
+<!--loading页开始-->
+<div class="loading">
+	<div class="loader">
+        <div class="loader-inner pacman">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+	</div>
+</div>
+	
+<!--loading页结束-->
+<body>
+	
+<div id="app">
+	<header class="page-header">
+		<h4 align="center">CAST商城</h4>
+	</header>
+	
+	<div class="contaniner fixed-contb">
+		<figure class="ban swiper-container">
+			<ul class="swiper-wrapper">
+				<li class="swiper-slide">
+					<a href="#">
+						<img src="images/index-ban01.png"/>
+					</a>
+				</li>
+				<li class="swiper-slide">
+					<a href="#">
+						<img src="images/index-ban02.png"/>
+					</a>
+				</li>
+				<li class="swiper-slide">
+					<a href="#">
+						<img src="images/index-ban03.png"/>
+					</a>
+				</li>
+			</ul>
+		</figure>
+		
+		<section class="shop">
+				<dl>
+					<dd v-for="(item,index) in catData">
+						<a :href="'./list.html?cat_id=' + item.cat_id">
+							<img :src="item.cat_index_rightad"/>
+							<b>{{item.cat_name}}</b>
+						</a>
+					</dd>
+				</dl>
+		</section>
+
+	</div>
+
+</div>
+	<footer class="page-footer fixed-footer">
+		<ul>
+			<li class="active">
+				<a href="index.html">
+					<img src="images/footer01.png"/>
+					<p>首页</p>
+				</a>
+			</li>
+			<li>
+				<a href="list.html">
+					<img src="images/footer002.png"/>
+					<p>列表</p>
+				</a>
+			</li>
+			<li>
+				<a href="shopcar.html">
+					<img src="images/footer003.png"/>
+					<p>购物车</p>
+				</a>
+			</li>
+			<li>
+				<a href="self.html">
+					<img src="images/footer004.png"/>
+					<p>个人中心</p>
+				</a>
+			</li>
+		</ul>
+	</footer>
+
+
+</body>
+
+
+
+<script src="js/swiper.min.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        var mySwiper = new Swiper('.swiper-container',{
+            loop: true,
+            speed:1000,
+            autoplay: 2000
+        });
+    });
+    let vm = new Vue({
+        el: '#app',
+        data: {
+            catData: []
+        },
+        methods: {
+            getCat: function () {
+                /*使用axios请求数据
+                * res.data是我们需要的数据
+                * 这里可以通过vm.catData来获取数据
+                * tips：为什么不使用this
+                *因为这里如果使用的是this的话这个this就会变成axios的对象，
+                * */
+                axios('http://localhost:8080/castShop/itcastshop/api/goodsType.php')
+                    .then(function (res) {
+                        vm.catData = res.data;
+                        /*console.log(catData);*/
+                    }).then(function (res) {
+                })
+            },
+			getList:function (index) {
+               alert(index);
+            }
+        },
+        /*created在实例创建完成后调用
+        * 我们创建的getCat函数可以在这里进行执行
+        * */
+        created: function () {
+            this.getCat();
+            
+        },
+
+    });
+
+</script>
+</html>

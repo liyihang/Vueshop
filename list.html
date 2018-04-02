@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <title>男装专区</title>
+    <link rel="stylesheet" type="text/css" href="css/loaders.min.css"/>
+    <link rel="stylesheet" type="text/css" href="css/loading.css"/>
+    <link rel="stylesheet" type="text/css" href="css/base.css"/>
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <script src="js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="lib/axios.js"></script>
+    <script src="lib/vue.js"></script>
+    <script type="text/javascript">
+        $(window).load(function () {
+            $(".loading").addClass("loader-chanage")
+            $(".loading").fadeOut(300)
+        })
+    </script>
+</head>
+<!--loading页开始-->
+<div class="loading">
+    <div class="loader">
+        <div class="loader-inner pacman">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+</div>
+<!--loading页结束-->
+<body>
+<header class="top-header fixed-header">
+    <a class="icona" href="javascript:history.go(-1)">
+        <img src="images/left.png"/>
+    </a>
+    <h3>男装专区</h3>
+
+    <a class="iconb" href="shopcar.html">
+        <img src="images/shopbar.png"/>
+    </a>
+</header>
+
+<div class="contaniner fixed-conta">
+    <section class="list">
+        <figure><img src="images/list-ban01.png"/></figure>
+        <div class="search">
+            <input type="search" placeholder="韩版卫衣"/>
+            <label><img src="images/list-search.png"/></label>
+        </div>
+        <nav>
+            <ul>
+                <li>
+                    <a href="#">
+                        <span>全部</span>
+                    </a>
+                </li>
+                <li class="list-active">
+                    <a href="#">
+                        <span>销量</span>
+                        <img src="images/up-red.png"/>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <span>价格</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <span>评价</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <ul class="wall">
+           <div id="app">
+               <li class="pic" v-for="(item,index) in listData">
+                   <a :href="'detail.html?goods_id='+item.goods_id">
+                       <img :src="item.goods_thumb"/>
+                       <p>{{item.goods_name}}</p>
+                       <b>￥{{item.shop_price}}</b>
+                       <del>￥{{item.market_price}}</del>
+                   </a>
+               </li>
+           </div>
+        </ul>
+    </section>
+</div>
+
+
+<script src="js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" src="js/jaliswall.js"></script>
+<script type="text/javascript">
+    $(window).load(function () {
+        $('.wall').jaliswall({item: '.pic'});
+    });
+/*获取url传递参数*/
+    function getQueryVariable(variable)
+    {
+        var query = window.location.search.substring(1);
+        var vars = query.split("&");
+        for (var i=0;i<vars.length;i++) {
+            var pair = vars[i].split("=");
+            if(pair[0] == variable){return pair[1];}
+        }
+        return(false);
+    }
+
+    let cat_id = getQueryVariable('cat_id');
+
+    let vm = new Vue({
+        el:'#app',
+        data:{
+            listData:[]
+        },
+        methods:{
+            getList:function () {
+                axios('http://localhost:8080/castShop/itcastshop/api/getList.php',{
+                    cat_id:cat_id
+                }).then(function (res) {
+                    vm.listData = res.data;
+                }).then(function (res) {
+                    console.log(res);
+                });
+                this.cat_id='';
+            }
+        },
+        created:function () {
+            this.getList();
+        }
+    });
+
+</script>
+
+
+</body>
+</html>

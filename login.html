@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>登录</title>
+    <link rel="stylesheet" type="text/css" href="css/loaders.min.css"/>
+    <link rel="stylesheet" type="text/css" href="css/loading.css"/>
+    <link rel="stylesheet" type="text/css" href="css/base.css"/>
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+      <script src="js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="lib/vue.js"></script>
+	<script src="lib/axios.js"></script>
+    <script type="text/javascript">
+    	$(window).load(function(){
+    		$(".loading").addClass("loader-chanage")
+    		$(".loading").fadeOut(300)
+    	})
+    </script>
+</head>
+<!--loading页开始-->
+<div class="loading">
+	<div class="loader">
+        <div class="loader-inner pacman">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+	</div>
+</div>
+<!--loading页结束-->
+<body>
+	<header class="top-header">
+		<a class="text texta" href="index.html">取消</a>
+		<h3>登录</h3>
+		<a class="text" href="sign.html">注册</a>
+	</header>
+	
+	<div class="login">
+		<form>
+			<div id="app">
+				<ul>
+					<li>
+						<img src="images/login.png"/>
+						<label>账号</label>
+						<input type="text" placeholder="请输入账号" v-model="username" style="height: 50px;border-radius: 5px"/>
+					</li>
+					<li>
+						<img src="images/password.png"/>
+						<label>密码</label>
+						<input type="password" placeholder="请输入密码" v-model="pwd" style="height: 50px;border-radius: 5px"/>
+					</li>
+				</ul>
+				<input type="button" v-on:click="loginin" value="登录"/>
+			</div>
+		</form>
+	</div>
+
+</body>
+<script>
+	let vm = new Vue({
+		el:'#app',
+		data:{
+			username:'',
+			pwd:''
+		},
+		methods:{
+		    loginin:function () {
+				axios('http://localhost:8080/castShop/itcastshop/api/user.php',{
+				    params:{
+				        action:'login',
+						username:vm.username,
+						pwd:vm.pwd
+					}
+				}).then(function (res) {
+                   if(res.data.status==200){
+                       /*登录成功之后，存储用户信息，跳转到用户首页*/
+                       sessionStorage.setItem('name',vm.username);
+                       window.location.href='./self.html';
+				   }else{
+                       alert('用户名或密码错误');
+				   }
+                });
+            }
+		},
+
+	})
+</script>
+</html>

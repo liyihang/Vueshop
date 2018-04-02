@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <title>购物车</title>
+    <link rel="stylesheet" type="text/css" href="css/loaders.min.css"/>
+    <link rel="stylesheet" type="text/css" href="css/loading.css"/>
+    <link rel="stylesheet" type="text/css" href="css/base.css"/>
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <script src="js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="lib/axios.js"></script>
+    <script src="lib/vue.js"></script>
+    <script type="text/javascript">
+        $(window).load(function () {
+            $(".loading").addClass("loader-chanage")
+            $(".loading").fadeOut(300)
+        })
+    </script>
+    <style>
+
+        #select span {
+            position: relative;
+            bottom: -20px;
+            left: 10px;
+            width: 10%;
+            height: 10%;
+            font-size: 20px;
+            display: inline;
+        }
+
+
+    </style>
+</head>
+<!--loading页开始-->
+<div class="loading">
+    <div class="loader">
+        <div class="loader-inner pacman">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+</div>
+<!--loading页结束-->
+<body>
+<header class="page-header">
+    <h3>购物车</h3>
+</header>
+<div id="app">
+    <div class="contaniner fixed-contb">
+        <section class="shopcar" v-for="item in cartData">
+            <div class="shopcar-checkbox">
+                <label for="shopcar" onselectstart="return false" v-bind:class="{'shopcar-checkd':item.checked}"
+                       @click="checkGoods(item)"></label>
+                <input type="checkbox" id="shopcar"/>
+            </div>
+            <figure><img :src="item.goods_thumb"/></figure>
+            <dl>
+                <dt v-if="item.goods_name">{{item.goods_name}}</dt>
+                <dd style="font-size: 14px;line-height: 20px;font-weight: bolder;color: firebrick">
+                    单价：{{item.shop_price}}
+                </dd>
+                <dd v-if="item.color">颜色：{{item.color}}</dd>
+                <dd v-if="item.size">尺寸：{{item.size}}</dd>
+                <dd v-if="item.capacity">容量：{{item.capacity}}</dd>
+                <div class="add">
+                    <span @click="getGoodsMoney(item,-1)">-</span>
+                    <input type="text" value="" v-model="item.mount"/>
+                    <span @click="getGoodsMoney(item,1)">+</span>
+                </div>
+                <h3>￥{{item.shop_price*item.mount}}</h3>
+                <small><img src="images/shopcar-icon01.png" @click="delGoods(item)"/></small>
+            </dl>
+        </section>
+        <div id="select">
+           <span>
+               选择：<input type="checkbox" style="zoom:150%;" name="select" v-bind:class="{'check':checkAll}"
+                         @click="selectAll">
+
+            </span>
+
+        </div>
+        <!--去结算-->
+        <div style="margin-bottom: 16%;"></div>
+
+    </div>
+
+    <footer class="page-footer fixed-footer">
+        <div class="shop-go">
+            <b>合计：￥{{totalPrice}}</b>
+            <span><a href="buy.html">去结算</a></span>
+        </div>
+        <ul>
+            <li>
+                <a href="index.html">
+                    <img src="images/footer001.png"/>
+                    <p>首页</p>
+                </a>
+            </li>
+            <li>
+                <a href="list.html">
+                    <img src="images/footer002.png"/>
+                    <p>列表</p>
+                </a>
+            </li>
+            <li class="active">
+                <a href="shopcar.html">
+                    <img src="images/footer03.png"/>
+                    <p>购物车</p>
+                </a>
+            </li>
+            <li>
+                <a href="self.html">
+                    <img src="images/footer004.png"/>
+                    <p>个人中心</p>
+                </a>
+            </li>
+        </ul>
+    </footer>
+
+</div>
+</body>
+
+<script>
+    let vm = new Vue({
+        el: '#app',
+        data: {
+            totalPrice: 0,
+            cartData: [],
+            checkAll: false
+        },
+        methods: {
+            /*获取整个购物车数据*/
+            getCarts: function () {
+                axios('http://localhost:8080/castShop/itcastshop/api/cartGoods.php').then(function (res) {
+                    vm.cartData = res.data;
+                })
+            },
+            /*点击—+可以增减商品数量*/
+            getGoodsMoney: function (item, action) {
+                if (action == 1) {
+                    item.mount++;
+                } else if (action == -1) {
+                    item.mount--;
+                    if (item.mount < 1) {
+                        item.mount = 1;
+                    }
+                }
+                this.getTotalPrice();
+            },
+            /*商品的选择取消*/
+            checkGoods: function (item) {
+                if (typeof item.checked == 'undefined') {
+                    Vue.set(item, 'checked', true);
+                } else {
+                    item.checked = !item.checked;
+                }
+                this.getTotalPrice();
+            },
+            /*全选 反选*/
+            selectAll: function (item) {
+                this.checkAll = !this.checkAll;
+                if (this.checkAll) {
+                    this.cartData.forEach(function (item, index) {
+                        if (typeof item.checked == 'undefined') {
+                            Vue.set(item, 'checked', true);
+                        } else {
+                            item.checked = !item.checked;
+                        }
+                    })
+                }
+                ;
+                this.getTotalPrice();
+            },
+            /*获取商品的总价*/
+            getTotalPrice: function () {
+                let _this = this;
+                this.totalPrice = 0;
+                this.cartData.forEach(function (item, index) {
+                    if (item.checked) {
+                        _this.totalPrice += item.shop_price * item.mount;
+
+                    }
+                })
+
+            },
+            /*删除所选的商品*/
+            delGoods: function (item) {
+                let index = this.cartData.indexOf(item);
+                this.cartData.splice(index,1);
+                this.getTotalPrice();
+            }
+        },
+
+        /*初始化页面所需要的数据*/
+        created: function () {
+            this.getCarts();
+
+        }
+    })
+</script>
+</html>
+
